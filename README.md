@@ -1,3 +1,23 @@
+# Support for Conjur Vault integration added.
+This version provides a new backend to the argocd vault plugin. We have tested it for argocd 2.6.4
+# How to use it:
+An image is already available on: https://hub.docker.com/r/itdistrict/argocd-vault-plugin
+
+You can also build your own image:
+1) clone/download this repo.
+2) build the software by using: GOOS=linux GOARCH=amd64 go build -o argocd-vault-plugin 
+3) build the docker image with the provided Dockerfile
+4) tag the image and upload it to your repository.
+5) use it :-)
+
+# What's new?
+We have added conjur vault support to argocd-vault-plugin. This plugin provides two ways of authentication. 
+1) authentication by using the sidecar authentication (preferred)
+2) authentication by using a static api-key
+
+# What's next?
+We will add another project to show the usage of this integration and will work on a pull request into the original project.
+
 # argocd-vault-plugin
 ![Pipeline](https://github.com/argoproj-labs/argocd-vault-plugin/workflows/Pipeline/badge.svg)
 ![Code Scanning](https://github.com/argoproj-labs/argocd-vault-plugin/workflows/Code%20Scanning/badge.svg)
