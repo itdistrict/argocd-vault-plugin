@@ -31,9 +31,16 @@ const (
 	EnvAvpDelineaUser      = "AVP_DELINEA_USER"
 	EnvAvpDelineaPassword  = "AVP_DELINEA_PASSWORD"
 	EnvAvpDelineaDomain    = "AVP_DELINEA_DOMAIN"
+	EnvAvpConjurURL		   = "AVP_CONJUR_URL"
+	EnvAvpConjurHost       = "AVP_CONJUR_HOST"
+	EnvAvpConjurApiKey     = "AVP_CONJUR_API_KEY"
+	EnvAvpConjurAccount     = "AVP_CONJUR_ACCOUNT"
+	EnvAvpConjurSSLCert     = "AVP_CONJUR_SSL_CERT"
+	EnvAvpConjurTokenFile     = "AVP_CONJUR_TOKEN_FILE"
 
 	// Backend and Auth Constants
 	VaultBackend                = "vault"
+	ConjurVaultBackend			= "conjurvault"
 	IBMSecretsManagerbackend    = "ibmsecretsmanager"
 	AWSSecretsManagerbackend    = "awssecretsmanager"
 	GCPSecretManagerbackend     = "gcpsecretmanager"

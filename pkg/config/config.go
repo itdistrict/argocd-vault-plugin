@@ -15,6 +15,8 @@ import (
 	kvauth "github.com/Azure/azure-sdk-for-go/services/keyvault/auth"
 	delineasecretserver "github.com/DelineaXPM/tss-sdk-go/v2/server"
 	"github.com/IBM/go-sdk-core/v5/core"
+	"github.com/cyberark/conjur-api-go/conjurapi"
+	"github.com/cyberark/conjur-api-go/conjurapi/authn"
 	ibmsm "github.com/IBM/secrets-manager-go-sdk/secretsmanagerv1"
 	"github.com/argoproj-labs/argocd-vault-plugin/pkg/auth/vault"
 	"github.com/argoproj-labs/argocd-vault-plugin/pkg/backends"
@@ -277,6 +279,58 @@ func New(v *viper.Viper, co *Options) (*Config, error) {
 				return nil, err
 			}
 			backend = backends.NewDelineaSecretServerBackend(tss)
+		}
+	case types.ConjurVaultBackend:
+		{
+			// Get required Delinea specific env variables
+			if !v.IsSet(types.EnvAvpConjurURL) ||
+				!v.IsSet(types.EnvAvpConjurSSLCert) ||
+				!v.IsSet(types.EnvAvpConjurAccount) ||
+				!v.IsSet(types.EnvAvpAuthType) {
+				return nil, fmt.Errorf("%s, %s, %s and %s are required for Conjur",
+					types.EnvAvpConjurURL,
+					types.EnvAvpConjurSSLCert,
+					types.EnvAvpConjurAccount,
+					types.EnvAvpAuthType,
+				)
+			}
+			var config conjurapi.Config
+			config.ApplianceURL = v.GetString(types.EnvAvpConjurURL)
+			config.Account = v.GetString(types.EnvAvpConjurAccount)
+			config.SSLCert = v.GetString(types.EnvAvpConjurSSLCert)
+			config.AuthnType="authn"
+			if v.GetString(types.EnvAvpAuthType) == "token"{
+				if !v.IsSet(types.EnvAvpConjurHost) ||
+				!v.IsSet(types.EnvAvpConjurApiKey) {
+					return nil, fmt.Errorf("%s and %s are required for Conjur token authentication",
+						types.EnvAvpConjurHost,
+						types.EnvAvpConjurApiKey,
+					)
+				}
+				
+				conjur, err := conjurapi.NewClientFromKey(
+					config,
+					authn.LoginPair{
+						Login:  v.GetString(types.EnvAvpConjurHost),
+						APIKey: v.GetString(types.EnvAvpConjurApiKey),
+					},
+				)
+				if err != nil {
+					return nil, err
+				}
+				backend = backends.NewConjurVaultBackend(conjur)
+			}else if v.GetString(types.EnvAvpAuthType) == "k8s"{
+				if !v.IsSet(types.EnvAvpConjurTokenFile) {
+					return nil, fmt.Errorf("%s is required for Conjur k8s authentication",
+						types.EnvAvpConjurTokenFile,
+					)
+				}
+				conjur, err := conjurapi.NewClientFromTokenFile(config, v.GetString(types.EnvAvpConjurTokenFile))
+				if err != nil {
+					return nil, err
+				}
+				backend = backends.NewConjurVaultBackend(conjur)
+			}
 		}
 	default:
 		return nil, fmt.Errorf("Must provide a supported Vault Type, received %s", v.GetString(types.EnvAvpType))
