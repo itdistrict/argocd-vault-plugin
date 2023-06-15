@@ -282,7 +282,7 @@ func New(v *viper.Viper, co *Options) (*Config, error) {
 		}
 	case types.ConjurVaultBackend:
 		{
-			// Get required Delinea specific env variables
+			// Get required Conjur specific env variables
 			if !v.IsSet(types.EnvAvpConjurURL) ||
 				!v.IsSet(types.EnvAvpConjurSSLCert) ||
 				!v.IsSet(types.EnvAvpConjurAccount) ||
